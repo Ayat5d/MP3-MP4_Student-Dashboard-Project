@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student Information Dashboard - CSE-2340 MP3-MP4" />
+  <title>Student Information Dashboard</title>
+  <style>
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --accent: #0f766e;
+  --accent-dark: #115e59;
+  --star: #f59e0b;
+  --danger: #dc2626;
+  --border: #e2e8f0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Header */
+.site-header {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+.site-header h1 { margin: 0 0 .25rem; }
+.site-header p { margin: 0; opacity: .9; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+.stat-value { display: block; font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+.stat-label { color: var(--muted); font-size: .85rem; }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
+.controls input,
+.controls select,
+.controls button {
+  padding: .6rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+}
+.controls input { flex: 1 1 240px; }
+.controls button { cursor: pointer; }
+.controls button[aria-pressed="true"] {
+  background: var(--star);
+  border-color: var(--star);
+  color: #fff;
+}
+
+/* Loading / error / empty states */
+.status { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+.status.error { color: var(--danger); }
+.status button {
+  margin-top: .75rem;
+  padding: .5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.spinner {
+  width: 36px; height: 36px;
+  margin: 0 auto .75rem;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Student cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+.card img {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  object-fit: cover;
+}
+.card h3 { margin: .5rem 0 .1rem; font-size: 1.05rem; }
+.card .dept { color: var(--accent); font-size: .85rem; font-weight: 600; }
+.card .uni { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+.card .meta { margin-top: .5rem; font-size: .85rem; color: var(--muted); }
+
+.bookmark-btn {
+  position: absolute;
+  top: .5rem; right: .5rem;
+  width: 34px; height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f8fafc;
+  font-size: 1.15rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.bookmark-btn.active { color: var(--star); }
+
+/* Details dialog */
+dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 440px;
+  width: calc(100% - 2rem);
+}
+dialog::backdrop { background: rgba(0,0,0,.5); }
+dialog .detail-head { text-align: center; }
+dialog .detail-head img { width: 96px; height: 96px; border-radius: 50%; background: #e2e8f0; }
+dialog .detail-head .dept { color: var(--accent); font-weight: 600; margin: 0; }
+dialog h2 { margin: .5rem 0 0; }
+dialog dl { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; margin: 1rem 0 0; }
+dialog dt { color: var(--muted); }
+dialog dd { margin: 0; word-break: break-word; }
+dialog button {
+  margin-top: 1rem;
+  padding: .5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Footer */
+.site-footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: .9rem; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .controls select, .controls button { flex: 1 1 100%; }
+}
+
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <h1>🎓 Student Information Dashboard</h1>
+    <p>Search, filter and bookmark students loaded from the DummyJSON API.</p>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Summary statistics">
+      <div class="stat"><span class="stat-value" id="stat-total">–</span><span class="stat-label">Total students</span></div>
+      <div class="stat"><span class="stat-value" id="stat-shown">–</span><span class="stat-label">Shown</span></div>
+      <div class="stat"><span class="stat-value" id="stat-age">–</span><span class="stat-label">Average age</span></div>
+      <div class="stat"><span class="stat-value" id="stat-bookmarks">0</span><span class="stat-label">Bookmarked</span></div>
+    </section>
+
+    <section class="controls" aria-label="Controls">
+      <input id="search-input" type="search" placeholder="Search by name, email or university..." aria-label="Search students" />
+      <select id="department-select" aria-label="Filter by department">
+        <option value="all">All departments</option>
+      </select>
+      <select id="sort-select" aria-label="Sort students">
+        <option value="name-asc">Name: A to Z</option>
+        <option value="name-desc">Name: Z to A</option>
+        <option value="age-asc">Age: Youngest first</option>
+        <option value="age-desc">Age: Oldest first</option>
+      </select>
+      <button id="bookmark-toggle" type="button" aria-pressed="false">★ Bookmarked only</button>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <section id="student-grid" class="grid" aria-label="Students"></section>
+  </main>
+
+  <dialog id="details-dialog">
+    <div id="details-content"></div>
+    <button id="close-dialog" type="button">Close</button>
+  </dialog>
+
+  <footer class="site-footer">
+    <p>Data from <a href="https://dummyjson.com" target="_blank" rel="noopener">dummyjson.com</a></p>
+  </footer>
+
+  <!-- Scripts: order matters (each file uses the ones above it) -->
+  <script>
+// storage.js - Local Storage helpers (bookmarks persist after refresh)
+
+const BOOKMARK_KEY = "studentDashboard.bookmarks";
+
+// Read the saved list of bookmarked student ids (empty array if none/invalid)
+function loadBookmarks() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(BOOKMARK_KEY));
+    return Array.isArray(saved) ? saved : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+// Write the current bookmarks to localStorage
+function saveBookmarks() {
+  localStorage.setItem(BOOKMARK_KEY, JSON.stringify(state.bookmarks));
+}
+
+function isBookmarked(id) {
+  return state.bookmarks.includes(id);
+}
+
+// Add the id if missing, remove it if present, then save
+function toggleBookmark(id) {
+  if (isBookmarked(id)) {
+    state.bookmarks = state.bookmarks.filter((b) => b !== id);
+  } else {
+    state.bookmarks.push(id);
+  }
+  saveBookmarks();
+}
+
+</script>
+  <script>
+// state.js - application state and data logic (search, filter, sort)
+
+const state = {
+  students: [],
+  bookmarks: loadBookmarks(), // array of student ids
+  query: "",
+  department: "all",
+  sort: "name-asc",
+  bookmarkedOnly: false,
+};
+
+// Returns the students that match the current search, filter and sort settings
+function getVisibleStudents() {
+  const query = state.query.trim().toLowerCase();
+
+  const list = state.students.filter((s) => {
+    const matchesQuery =
+      s.name.toLowerCase().includes(query) ||
+      s.email.toLowerCase().includes(query) ||
+      s.university.toLowerCase().includes(query);
+    const matchesDept = state.department === "all" || s.department === state.department;
+    const matchesBookmark = !state.bookmarkedOnly || isBookmarked(s.id);
+    return matchesQuery && matchesDept && matchesBookmark;
+  });
+
+  switch (state.sort) {
+    case "name-asc": list.sort((a, b) => a.name.localeCompare(b.name)); break;
+    case "name-desc": list.sort((a, b) => b.name.localeCompare(a.name)); break;
+    case "age-asc": list.sort((a, b) => a.age - b.age); break;
+    case "age-desc": list.sort((a, b) => b.age - a.age); break;
+  }
+  return list;
+}
+
+// Unique, sorted department names (used for the filter dropdown)
+function getDepartments() {
+  return [...new Set(state.students.map((s) => s.department))].sort();
+}
+
+</script>
+  <script>
+// api.js - fetches data from the external API using fetch() and async/await
+
+const API_URL = "https://dummyjson.com/users?limit=100";
+
+// Returns an array of student objects. Throws an Error if the request fails.
+async function fetchStudentsFromApi() {
+  const response = await fetch(API_URL);
+
+  if (!response.ok) {
+    throw new Error(`Server responded with status ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  // Shape each API user into a student object
+  return data.users.map((u) => ({
+    id: u.id,
+    name: `${u.firstName} ${u.lastName}`,
+    age: u.age,
+    gender: u.gender,
+    email: u.email,
+    phone: u.phone,
+    image: u.image,
+    university: u.university,
+    department: u.company.department,
+    city: u.address.city,
+    country: u.address.country,
+  }));
+}
+
+</script>
+  <script>
+// ui.js - everything that touches the DOM (rendering, status messages, dialog)
+
+// ----- DOM references -----
+const grid = document.querySelector("#student-grid");
+const statusBox = document.querySelector("#status");
+const departmentSelect = document.querySelector("#department-select");
+const dialog = document.querySelector("#details-dialog");
+const dialogContent = document.querySelector("#details-content");
+const statTotal = document.querySelector("#stat-total");
+const statShown = document.querySelector("#stat-shown");
+const statAge = document.querySelector("#stat-age");
+const statBookmarks = document.querySelector("#stat-bookmarks");
+
+// ----- Loading / error / empty states -----
+function showLoading() {
+  grid.innerHTML = "";
+  statusBox.className = "status";
+  statusBox.innerHTML = '<div class="spinner"></div><p>Loading students...</p>';
+}
+
+function showError(message, onRetry) {
+  grid.innerHTML = "";
+  statusBox.className = "status error";
+  statusBox.innerHTML = `<p>⚠️ ${message}</p><button type="button" id="retry-btn">Try again</button>`;
+  document.querySelector("#retry-btn").addEventListener("click", onRetry);
+}
+
+function showEmpty(message) {
+  statusBox.className = "status";
+  statusBox.innerHTML = `<p>${message}</p>`;
+}
+
+function clearStatus() {
+  statusBox.className = "status";
+  statusBox.innerHTML = "";
+}
+
+// ----- Rendering -----
+function populateDepartments() {
+  getDepartments().forEach((dept) => {
+    const option = document.createElement("option");
+    option.value = dept;
+    option.textContent = dept;
+    departmentSelect.appendChild(option);
+  });
+}
+
+function createCard(student) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.id = student.id;
+
+  card.innerHTML = `
+    <button class="bookmark-btn ${isBookmarked(student.id) ? "active" : ""}" type="button"
+      aria-label="Toggle bookmark" data-action="bookmark">${isBookmarked(student.id) ? "★" : "☆"}</button>
+    <img src="${student.image}" alt="${student.name}" loading="lazy" />
+    <h3>${student.name}</h3>
+    <div class="dept">${student.department}</div>
+    <div class="uni">${student.university}</div>
+    <div class="meta">Age ${student.age} · ${student.city}</div>
+  `;
+  return card;
+}
+
+function updateStats(visible) {
+  statTotal.textContent = state.students.length;
+  statShown.textContent = visible.length;
+  statBookmarks.textContent = state.bookmarks.length;
+
+  if (visible.length === 0) {
+    statAge.textContent = "–";
+  } else {
+    const totalAge = visible.reduce((sum, s) => sum + s.age, 0);
+    statAge.textContent = (totalAge / visible.length).toFixed(1);
+  }
+}
+
+function render() {
+  const list = getVisibleStudents();
+  grid.innerHTML = "";
+  updateStats(list);
+
+  if (list.length === 0) {
+    showEmpty(
+      state.bookmarkedOnly && state.bookmarks.length === 0
+        ? "You haven't bookmarked any students yet."
+        : "No students match your search."
+    );
+    return;
+  }
+
+  clearStatus();
+  const fragment = document.createDocumentFragment();
+  list.forEach((student) => fragment.appendChild(createCard(student)));
+  grid.appendChild(fragment);
+}
+
+// ----- Details dialog -----
+function openDetails(id) {
+  const s = state.students.find((student) => student.id === id);
+  if (!s) return;
+
+  dialogContent.innerHTML = `
+    <div class="detail-head">
+      <img src="${s.image}" alt="${s.name}" />
+      <h2>${s.name}</h2>
+      <p class="dept">${s.department}</p>
+    </div>
+    <dl>
+      <dt>Student ID</dt><dd>${s.id}</dd>
+      <dt>Age</dt><dd>${s.age}</dd>
+      <dt>Gender</dt><dd>${s.gender}</dd>
+      <dt>University</dt><dd>${s.university}</dd>
+      <dt>Email</dt><dd>${s.email}</dd>
+      <dt>Phone</dt><dd>${s.phone}</dd>
+      <dt>Location</dt><dd>${s.city}, ${s.country}</dd>
+    </dl>
+  `;
+  dialog.showModal();
+}
+
+</script>
+  <script>
+// app.js - entry point: loads data and wires up all event listeners
+
+const searchInput = document.querySelector("#search-input");
+const sortSelect = document.querySelector("#sort-select");
+const bookmarkToggle = document.querySelector("#bookmark-toggle");
+const closeDialogBtn = document.querySelector("#close-dialog");
+
+// Load students from the API, handling loading and error states
+async function loadStudents() {
+  showLoading();
+  try {
+    state.students = await fetchStudentsFromApi();
+    populateDepartments();
+    clearStatus();
+    render();
+  } catch (err) {
+    showError(`Could not load students. ${err.message}`, loadStudents);
+  }
+}
+
+// ----- Event listeners -----
+searchInput.addEventListener("input", (e) => {
+  state.query = e.target.value;
+  render();
+});
+
+departmentSelect.addEventListener("change", (e) => {
+  state.department = e.target.value;
+  render();
+});
+
+sortSelect.addEventListener("change", (e) => {
+  state.sort = e.target.value;
+  render();
+});
+
+bookmarkToggle.addEventListener("click", () => {
+  state.bookmarkedOnly = !state.bookmarkedOnly;
+  bookmarkToggle.setAttribute("aria-pressed", state.bookmarkedOnly);
+  render();
+});
+
+// Event delegation: one listener handles clicks on every card
+grid.addEventListener("click", (e) => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  const id = Number(card.dataset.id);
+
+  if (e.target.closest("[data-action='bookmark']")) {
+    toggleBookmark(id);
+    render();
+  } else {
+    openDetails(id);
+  }
+});
+
+closeDialogBtn.addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", (e) => {
+  if (e.target === dialog) dialog.close(); // click on the backdrop closes it
+});
+
+// ----- Start the app -----
+loadStudents();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --accent: #0f766e;
+  --accent-dark: #115e59;
+  --star: #f59e0b;
+  --danger: #dc2626;
+  --border: #e2e8f0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Header */
+.site-header {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+.site-header h1 { margin: 0 0 .25rem; }
+.site-header p { margin: 0; opacity: .9; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+.stat-value { display: block; font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+.stat-label { color: var(--muted); font-size: .85rem; }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
+.controls input,
+.controls select,
+.controls button {
+  padding: .6rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+}
+.controls input { flex: 1 1 240px; }
+.controls button { cursor: pointer; }
+.controls button[aria-pressed="true"] {
+  background: var(--star);
+  border-color: var(--star);
+  color: #fff;
+}
+
+/* Loading / error / empty states */
+.status { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+.status.error { color: var(--danger); }
+.status button {
+  margin-top: .75rem;
+  padding: .5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.spinner {
+  width: 36px; height: 36px;
+  margin: 0 auto .75rem;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Student cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+.card img {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  object-fit: cover;
+}
+.card h3 { margin: .5rem 0 .1rem; font-size: 1.05rem; }
+.card .dept { color: var(--accent); font-size: .85rem; font-weight: 600; }
+.card .uni { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+.card .meta { margin-top: .5rem; font-size: .85rem; color: var(--muted); }
+
+.bookmark-btn {
+  position: absolute;
+  top: .5rem; right: .5rem;
+  width: 34px; height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f8fafc;
+  font-size: 1.15rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.bookmark-btn.active { color: var(--star); }
+
+/* Details dialog */
+dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 440px;
+  width: calc(100% - 2rem);
+}
+dialog::backdrop { background: rgba(0,0,0,.5); }
+dialog .detail-head { text-align: center; }
+dialog .detail-head img { width: 96px; height: 96px; border-radius: 50%; background: #e2e8f0; }
+dialog .detail-head .dept { color: var(--accent); font-weight: 600; margin: 0; }
+dialog h2 { margin: .5rem 0 0; }
+dialog dl { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; margin: 1rem 0 0; }
+dialog dt { color: var(--muted); }
+dialog dd { margin: 0; word-break: break-word; }
+dialog button {
+  margin-top: 1rem;
+  padding: .5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Footer */
+.site-footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: .9rem; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .controls select, .controls button { flex: 1 1 100%; }
+}

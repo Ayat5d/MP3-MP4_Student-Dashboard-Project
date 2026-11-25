@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student Information Dashboard - CSE-2340 MP3-MP4" />
+  <title>Student Information Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>🎓 Student Information Dashboard</h1>
+    <p>Search, filter and bookmark students loaded from the DummyJSON API.</p>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Summary statistics">
+      <div class="stat"><span class="stat-value" id="stat-total">–</span><span class="stat-label">Total students</span></div>
+      <div class="stat"><span class="stat-value" id="stat-shown">–</span><span class="stat-label">Shown</span></div>
+      <div class="stat"><span class="stat-value" id="stat-age">–</span><span class="stat-label">Average age</span></div>
+      <div class="stat"><span class="stat-value" id="stat-bookmarks">0</span><span class="stat-label">Bookmarked</span></div>
+    </section>
+
+    <section class="controls" aria-label="Controls">
+      <input id="search-input" type="search" placeholder="Search by name, email or university..." aria-label="Search students" />
+      <select id="department-select" aria-label="Filter by department">
+        <option value="all">All departments</option>
+      </select>
+      <select id="sort-select" aria-label="Sort students">
+        <option value="name-asc">Name: A to Z</option>
+        <option value="name-desc">Name: Z to A</option>
+        <option value="age-asc">Age: Youngest first</option>
+        <option value="age-desc">Age: Oldest first</option>
+      </select>
+      <button id="bookmark-toggle" type="button" aria-pressed="false">★ Bookmarked only</button>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <section id="student-grid" class="grid" aria-label="Students"></section>
+  </main>
+
+  <dialog id="details-dialog">
+    <div id="details-content"></div>
+    <button id="close-dialog" type="button">Close</button>
+  </dialog>
+
+  <footer class="site-footer">
+    <p>Data from <a href="https://dummyjson.com" target="_blank" rel="noopener">dummyjson.com</a></p>
+  </footer>
+
+  <!-- Scripts: order matters (each file uses the ones above it) -->
+  <script src="js/storage.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
